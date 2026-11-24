@@ -1,3 +1,14 @@
 .DS_Store
 node_modules/
 /web-guidelines-audit/
+.env
+.env.*
+*.pem
+*.key
+findings.json
+probe-*.json
+*-ai.json
+*.png
+*.jpg
+*.jpeg
+*.har
