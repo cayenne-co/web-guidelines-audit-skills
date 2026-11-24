@@ -2,8 +2,8 @@
 name: web-guidelines-audit
 description: Inspects live or in-development pages in a browser against the Web Guidelines checklists (Page Quality and Accessibility) and writes the AI results to a checklist work file (JSON). Use for requests such as "audit this page with the guidelines", "check the checklist with AI", "run an AI accessibility check", "ガイドラインで検査して", "チェックリストを AI で確認", or "アクセシビリティを AI でチェック". Requires a browser automation tool (Claude in Chrome or Playwright MCP).
 metadata:
-  version: 0.1.0
-  guidelines: ">=0.1.0 <0.2.0"
+  version: 0.2.0
+  guidelines: ">=0.6.0 <0.7.0"
 ---
 
 # web-guidelines-audit

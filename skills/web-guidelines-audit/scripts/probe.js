@@ -334,8 +334,28 @@ async () => {
   const targetsAll = [...document.querySelectorAll('a[href],button,input:not([type="hidden"]),select,textarea,summary,[role="button"],[role="link"],[role="tab"],[role="checkbox"],[role="switch"]')].filter((el) => visible(el) && !visuallyHidden(el) && !hiddenFromAT(el))
   const inline = (el) => el.tagName === 'A' && getComputedStyle(el).display === 'inline' && el.closest('p,li,td,dd') && text(el.closest('p,li,td,dd')).length > text(el).length + 10
   const sized = targetsAll.filter((el) => !inline(el)).map((el) => ({ el, r: el.getBoundingClientRect() }))
+  const size = ({ r }) => `${Math.round(r.width)}x${Math.round(r.height)}`
+  const small = sized.filter(({ r }) => r.width < 24 || r.height < 24)
+  // WCAG 2.5.8 spacing exception: center a 24px circle on each undersized target. It passes when the circle
+  // intersects no other target and no other undersized target's circle. Nested targets (a label around its input) are one target
+  const placed = targetsAll.map((el) => ({ el, r: el.getBoundingClientRect() })).filter(({ r }) => r.width > 0 && r.height > 0)
+  const center = (r) => ({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
+  const toRect = (p, r) => Math.hypot(Math.max(r.left - p.x, 0, p.x - r.right), Math.max(r.top - p.y, 0, p.y - r.bottom))
+  const related = (a, b) => a === b || a.contains(b) || b.contains(a)
+  const crowdedBy = ({ el, r }) => {
+    const c = center(r)
+    const hit = placed.find((o) => !related(o.el, el) && toRect(c, o.r) < 12)
+    if (hit) return hit.el
+    const near = small.find((o) => !related(o.el, el) && Math.hypot(center(o.r).x - c.x, center(o.r).y - c.y) < 24)
+    return near?.el ?? null
+  }
+  const judged = small.map((t) => ({ ...t, by: crowdedBy(t) }))
   const targets = {
-    under24: sized.filter(({ r }) => r.width < 24 || r.height < 24).map(({ el, r }) => `${desc(el)} ${Math.round(r.width)}x${Math.round(r.height)}`),
+    under24: small.map((t) => `${desc(t.el)} ${size(t)}`),
+    // Under 24px and too close to a neighbor: fails 2.5.8
+    under24Crowded: judged.filter((t) => t.by).map((t) => `${desc(t.el)} ${size(t)} (near ${desc(t.by)})`),
+    // Under 24px but spaced enough: passes 2.5.8 by the spacing exception
+    under24Spaced: judged.filter((t) => !t.by).map((t) => `${desc(t.el)} ${size(t)}`),
     under44: cut(sized.filter(({ r }) => r.width < 44 || r.height < 44).map(({ el, r }) => `${desc(el)} ${Math.round(r.width)}x${Math.round(r.height)}`))
   }
 
@@ -552,7 +572,7 @@ async () => {
     tables,
     contrast,
     uiContrast: cut(uiContrast, 20),
-    targets: { under24: cut(targets.under24, 30), under44: targets.under44 },
+    targets: { under24: cut(targets.under24, 30), under24Crowded: cut(targets.under24Crowded, 30), under24Spaced: cut(targets.under24Spaced, 30), under44: targets.under44 },
     layout,
     fixedElements,
     css,
