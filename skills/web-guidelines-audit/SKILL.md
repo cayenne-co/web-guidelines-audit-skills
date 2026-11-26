@@ -2,8 +2,8 @@
 name: web-guidelines-audit
 description: Inspects live or in-development pages in a browser against the Web Guidelines checklists (Page Quality and Accessibility) and writes the AI results to a checklist work file (JSON). Use for requests such as "audit this page with the guidelines", "check the checklist with AI", "run an AI accessibility check", "ガイドラインで検査して", "チェックリストを AI で確認", or "アクセシビリティを AI でチェック". Requires a browser automation tool (Claude in Chrome or Playwright MCP).
 metadata:
-  version: 0.2.0
-  guidelines: ">=0.6.0 <0.7.0"
+  version: 0.3.0
+  guidelines: ">=1.0.0 <2.0.0"
 ---
 
 # web-guidelines-audit
@@ -18,7 +18,7 @@ The skill version and the supported guidelines versions are in `metadata` above.
 1. **Only audit sites you have been cleared to audit.** Limit the audit to sites the user named in this conversation and said may be audited. Do not follow links to other domains (except checking the status of same-site links).
 2. **Stay read-only.** Do not submit forms. Do not purchase, book, contact, or log in. Do not enter passwords, personal data, or real values into fields. Do not clear cookies or storage. Make page-altering changes (grayscale, text spacing, etc.) only through the `__wga` functions, and revert them after the check.
 3. **Let the user open pages that require sign-in.** If a login screen appears, stop and ask the user to sign in in the browser, then continue. Never ask for or enter IDs or passwords.
-4. **AI results are advisory.** Do not write to the work file's `verdict`. Put results in `ai` (pass / fail / not applicable) and `ai_note` (evidence). The reviewer sets the verdict after checking the evidence.
+4. **AI results are for reference.** Never write to the work file's `verdict`. Put results in `ai` (pass / fail / not applicable) and `ai_note` (evidence), which the checklist app shows in a separate "AI result (reference)" / 「AI 判定（参考）」 column. The reviewer sets the verdict after checking the evidence. When the reviewer adopts an AI result, the guidelines require the note to start with 「【AI 確認】」 and record the environment and evidence, so always give them in `ai_note`.
 5. **Do not send pages to external services.** Send URLs or HTML to services such as the W3C Nu HTML Checker only for live pages the user has approved.
 
 ## Inputs
@@ -58,10 +58,10 @@ It returns the collected values and places helper functions on `window.__wga` (r
 
 1. **Select items.** Read `/checklist.json` from the guidelines site and keep these items:
    - Items whose `needs` is `browser` (Page Quality items checked in the browser, and Accessibility QA). Skip `code` / `docs` items.
-   - Items whose `ai` is `auto` or `assist`. Skip `none` (the reason is in `ai_why`).
+   - Items whose `ai` is `auto` (shown as "Decides" / 「判定可」) or `assist` ("Assists" / 「判定補助」). Skip `none` ("Cannot" / 「判定不可」; the reason is in `ai_why`).
    - Drop items whose `severity` is `MAY`, unless the level is AAA.
    - Check items with `same_as` together with the referenced item (`ai_steps` says "same as …").
-   - Check items whose `unit` is `site` only once per site.
+   - Check items whose `unit` is `site` only once per site, and items whose `unit` is `build` once on the built output (for example on the top page).
 2. **Create a work folder.** Put `probe-<name>.json` per page and screenshots in `web-guidelines-audit/<yyyy-mm-dd>/`.
 3. **Check each page.** For each URL:
    1. Open the page. If it is a login screen, stop and ask the user (rule 3).
@@ -76,16 +76,16 @@ It returns the collected values and places helper functions on `window.__wga` (r
    - `assist` items: put the proposed result in `ai`, start `note` with "Proposed: ", and state what the reviewer should confirm.
    - If you cannot judge, omit `ai` and give the reason in `note` (e.g. Lighthouse unavailable).
    - Write `note` in the user's language (the language of their request).
-   - In `note`, include measured values, the relevant elements (as in `el` from `probe`), and screenshot file names. Never write a result without evidence.
+   - In `note`, include the browser and tool used, measured values, the relevant elements (as in `el` from `probe`), and screenshot file names. Never write a result without evidence.
    - Claude in Chrome cannot save screenshots to files. In that case leave `evidence` empty and write "Checked by screenshot (not saved)" in `note`.
 5. **Build the work file.**
    ```bash
    node <this skill's folder>/scripts/workfile.mjs --guidelines <guidelines site> --findings web-guidelines-audit/<date>/findings.json --out web-guidelines-audit/<date>/<project>-ai.json
    ```
 6. **Report** in the user's language. Briefly give the counts of pass, fail, not applicable, and not judged, list the failed items (ID and summary), and point to the work file. Tell the reviewer how to use it:
-   - Open it in the checklist app (`/checklist-app` on the guidelines site) with "Load work file".
-   - Check the "AI result (advisory)" and evidence on each row, and set the verdict.
-   - When exported to the record sheet (Excel), AI results appear in the "AI result (advisory, not counted)" column.
+   - Open it in the checklist app (`/checklist-app` on the guidelines site) with 「作業ファイルを読み込む」 ("Open a work file" on the English site, `/en/checklist-app`).
+   - Check 「AI 判定（参考）」 ("AI result (reference)") and its basis on each row, and set the verdict. Only `auto` items may have the AI result adopted as the verdict; `assist` items need the reviewer's own check.
+   - When exported to the record sheet (Excel), AI results appear in the 「AI 判定（参考。集計しない）」 ("AI result (reference only, not counted)") column.
 
 ## Shape of findings.json
 
