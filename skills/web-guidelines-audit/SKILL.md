@@ -2,7 +2,7 @@
 name: web-guidelines-audit
 description: Inspects live or in-development pages in a browser against the Web Guidelines checklists (Page Quality and Accessibility) and writes the AI results to a checklist work file (JSON). Use for requests such as "audit this page with the guidelines", "check the checklist with AI", "run an AI accessibility check", "ガイドラインで検査して", "チェックリストを AI で確認", or "アクセシビリティを AI でチェック". Requires a browser automation tool (Claude in Chrome or Playwright MCP).
 metadata:
-  version: 0.3.1
+  version: 0.3.2
   guidelines: ">=1.0.0 <2.0.0"
 ---
 
@@ -48,7 +48,7 @@ It returns the collected values and places helper functions on `window.__wga` (r
 | `__wga.startFocusLog()` → press Tab → `__wga.focusLog()` | Focus order, unreachable elements, focus visibility, obscured focus (QA-01, 04, 05, 07, 44, 45, 76, 94) |
 | `__wga.active()` | Element that currently has focus (QA-10, STR-10) |
 | `__wga.states()` | Current values of `aria-expanded` etc. (QA-06, 24) |
-| `__wga.checkLinks()` | Status of same-site links (LNK-05) |
+| `__wga.checkLinks()` | Status of same-site links (LNK-05). Logout and delete-style links are skipped and listed in `skipped`; check them by hand |
 | `__wga.notFound()` | Response for a non-existent URL (PRF-05) |
 | `__wga.grayscale(true/false)` | Grayscale the page (QA-31, 42) |
 | `__wga.textSpacing(true/false)`, `__wga.textZoom(2/1)`, `__wga.clipped()` | Change text spacing and size and look for clipping (QA-51, 60) |

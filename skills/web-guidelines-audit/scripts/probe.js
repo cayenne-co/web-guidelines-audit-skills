@@ -479,14 +479,19 @@ async () => {
         const target = el.getAttribute('aria-controls') && document.getElementById(el.getAttribute('aria-controls').split(' ')[0])
         return { el: desc(el), expanded: el.getAttribute('aria-expanded') ?? undefined, selected: el.getAttribute('aria-selected') ?? undefined, pressed: el.getAttribute('aria-pressed') ?? undefined, current: el.getAttribute('aria-current') ?? undefined, controlsVisible: target ? visible(target) : undefined }
       }),
+    // Requests carry the signed-in session, so a GET on a logout or delete-style link could change the site.
+    // Such links are skipped (by URL or link text) and listed for the reviewer to check by hand
     async checkLinks(limit = 60) {
-      const urls = [...new Set(as.map((a) => a.href.split('#')[0]).filter((u) => u.startsWith(location.origin)))].slice(0, limit)
+      const risky = /log-?out|log-?off|sign-?out|delete|remove|destroy|unsubscribe|withdraw|cancel|ログアウト|サインアウト|削除|退会|解約|取り消|キャンセル/i
+      const same = as.filter((a) => a.href.startsWith(location.origin))
+      const skipped = [...new Set(same.filter((a) => risky.test(decodeURIComponent(a.href)) || risky.test(a.textContent)).map((a) => a.href.split('#')[0]))]
+      const urls = [...new Set(same.map((a) => a.href.split('#')[0]))].filter((u) => !skipped.includes(u)).slice(0, limit)
       const broken = []
       for (const u of urls) {
         const s = await status(u)
         if (typeof s !== 'number' || s >= 400) broken.push({ url: u, status: s })
       }
-      return { checked: urls.length, broken }
+      return { checked: urls.length, broken, skipped }
     },
     async notFound() {
       const u = new URL(`/__wga-not-found-${Date.now()}`, location.origin).href
