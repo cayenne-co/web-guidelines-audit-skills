@@ -3,6 +3,12 @@
 All notable changes to this skill. Versions follow [Semantic Versioning](https://semver.org/).
 "Guidelines" shows the guidelines versions each release supports.
 
+## 0.3.2
+
+Guidelines: `>=1.0.0 <2.0.0`
+
+- Fixed: `checkLinks()` skips logout and delete-style links, because it requests links with the signed-in session, and lists them in `skipped`.
+
 ## 0.3.1
 
 Guidelines: `>=1.0.0 <2.0.0`
