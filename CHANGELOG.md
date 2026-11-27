@@ -3,6 +3,14 @@
 All notable changes to this skill. Versions follow [Semantic Versioning](https://semver.org/).
 "Guidelines" shows the guidelines versions each release supports.
 
+## 0.3.0
+
+Guidelines: `>=1.0.0 <2.0.0`
+
+- Changed: supports guidelines 1.x (the first published version) and no longer 0.6.x.
+- Changed: `SKILL.md` uses the guidelines' names for AI involvement (Decides / Assists / Cannot) and the checklist app's current labels, notes that only `auto` results may be adopted as the verdict, and asks for the browser and tool in each note.
+- Added: how to check items whose `unit` is `build`.
+
 ## 0.2.0
 
 Guidelines: `>=0.6.0 <0.7.0`
