@@ -3,6 +3,12 @@
 All notable changes to this skill. Versions follow [Semantic Versioning](https://semver.org/).
 "Guidelines" shows the guidelines versions each release supports.
 
+## 0.3.1
+
+Guidelines: `>=1.0.0 <2.0.0`
+
+- Fixed: `SKILL.md` uses the record sheet's current column name 「AI 判定（参考）」 ("AI result (reference)").
+
 ## 0.3.0
 
 Guidelines: `>=1.0.0 <2.0.0`

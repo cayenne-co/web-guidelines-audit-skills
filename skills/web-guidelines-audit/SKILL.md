@@ -2,7 +2,7 @@
 name: web-guidelines-audit
 description: Inspects live or in-development pages in a browser against the Web Guidelines checklists (Page Quality and Accessibility) and writes the AI results to a checklist work file (JSON). Use for requests such as "audit this page with the guidelines", "check the checklist with AI", "run an AI accessibility check", "ガイドラインで検査して", "チェックリストを AI で確認", or "アクセシビリティを AI でチェック". Requires a browser automation tool (Claude in Chrome or Playwright MCP).
 metadata:
-  version: 0.3.0
+  version: 0.3.1
   guidelines: ">=1.0.0 <2.0.0"
 ---
 
@@ -85,7 +85,7 @@ It returns the collected values and places helper functions on `window.__wga` (r
 6. **Report** in the user's language. Briefly give the counts of pass, fail, not applicable, and not judged, list the failed items (ID and summary), and point to the work file. Tell the reviewer how to use it:
    - Open it in the checklist app (`/checklist-app` on the guidelines site) with 「作業ファイルを読み込む」 ("Open a work file" on the English site, `/en/checklist-app`).
    - Check 「AI 判定（参考）」 ("AI result (reference)") and its basis on each row, and set the verdict. Only `auto` items may have the AI result adopted as the verdict; `assist` items need the reviewer's own check.
-   - When exported to the record sheet (Excel), AI results appear in the 「AI 判定（参考。集計しない）」 ("AI result (reference only, not counted)") column.
+   - When exported to the record sheet (Excel), AI results appear in the 「AI 判定（参考）」 ("AI result (reference)") column. They are not counted in the totals.
 
 ## Shape of findings.json
 
